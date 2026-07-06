@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>devControlAnalyzer</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="logo">◇</span>
+        <div>
+          <h1>devControlAnalyzer</h1>
+          <p class="sub">Network AV discovery &amp; control</p>
+        </div>
+      </div>
+      <div class="room-controls">
+        <span id="controllerBadge" class="badge badge-muted">No controller</span>
+        <button id="roomOn" class="btn btn-on">Power Room On</button>
+        <button id="roomOff" class="btn btn-off">Power Room Off</button>
+        <button id="validate" class="btn">Validate</button>
+      </div>
+    </header>
+
+    <section class="toolbar">
+      <input id="cidr" class="input" placeholder="CIDR e.g. 192.168.1.0/24 (blank = auto)" />
+      <button id="scan" class="btn btn-primary">Scan network</button>
+      <a id="exportLink" class="btn" href="/api/inventory" target="_blank" rel="noopener"
+        >Export JSON</a
+      >
+      <span id="progress" class="progress"></span>
+    </section>
+
+    <section id="validationPanel" class="panel hidden"></section>
+
+    <main id="grid" class="grid"></main>
+
+    <footer class="footer">
+      <span id="stats"></span>
+    </footer>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

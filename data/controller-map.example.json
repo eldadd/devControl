@@ -1,0 +1,13 @@
+{
+  "_comment": "Site-specific learned control mapping for a Crestron/AMX processor. Copy to controller-map.json and fill in the captured payloads for your room. Because room power is defined by the controller program (digital joins / channel events), the analyzer needs the exact packet to send. Capture it once during commissioning; the analyzer then reuses it and validates that downstream devices actually follow.",
+  "power-on": {
+    "join": 12,
+    "pulse": true,
+    "payloadHex": ""
+  },
+  "power-off": {
+    "join": 13,
+    "pulse": true,
+    "payloadHex": ""
+  }
+}

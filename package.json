@@ -1,0 +1,32 @@
+{
+  "name": "devcontrolanalyzer",
+  "version": "0.1.0",
+  "description": "Discovers devices on a network, learns their control protocols, and presents a unified control surface (VNC thumbnails, power buttons) for PCs, projectors and screens. Follows a Crestron/AMX controller when present and validates that power commands actually take effect on every device.",
+  "type": "module",
+  "main": "src/index.js",
+  "bin": {
+    "devcontrolanalyzer": "src/index.js"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "scan": "node src/index.js scan",
+    "export": "node src/index.js export",
+    "test": "node --test test/*.test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "av-control",
+    "network-scan",
+    "crestron",
+    "amx",
+    "pjlink",
+    "vnc",
+    "wake-on-lan",
+    "projector",
+    "device-discovery"
+  ],
+  "license": "MIT",
+  "dependencies": {}
+}
