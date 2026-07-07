@@ -112,6 +112,31 @@ npm start
 In Telegram, send `/start` (or `/menu`) to your bot to bring up the control
 menu. The token is only ever read from the environment — it is never committed.
 
+### Push notifications (proactive alerts)
+
+Beyond replying to commands, the bot can **push** you alerts when power state
+goes wrong — no need to be looking at the dashboard:
+
+- **Command didn't apply** — right after a Room On/Off, if any device failed to
+  reach the commanded state, you get a message naming the offenders.
+- **Drift** — a background watcher re-checks the room against its last-commanded
+  state on an interval and alerts if a device falls out (e.g. a projector that
+  powered itself off after the room was turned on).
+- **Recovery** — once everything matches again, you get an all-clear.
+
+Enable by setting notify targets (defaults to the control allowlist if unset):
+
+```bash
+TELEGRAM_BOT_TOKEN=123456789:AAE... \
+TELEGRAM_NOTIFY_CHAT_IDS=11111111 \
+WATCH_INTERVAL_MS=30000 \
+npm start
+```
+
+Alerts are debounced — a device is announced when it *newly* fails, not on every
+poll. Set `WATCH_INTERVAL_MS=0` to disable the background watcher (immediate
+command-failure alerts still fire).
+
 ## Configuration
 
 All settings have sensible defaults and can be overridden with environment
@@ -127,6 +152,8 @@ variables (see `src/config.js`):
 | `VALIDATE_SETTLE_MS`| 8000    | How long to wait for power convergence         |
 | `TELEGRAM_BOT_TOKEN`| —       | BotFather token; enables the Telegram bot      |
 | `TELEGRAM_ALLOWED_CHAT_IDS` | — | Comma-separated chat IDs allowed to control    |
+| `TELEGRAM_NOTIFY_CHAT_IDS`  | allowlist | Chat IDs to push alerts to               |
+| `WATCH_INTERVAL_MS` | 30000   | Drift-watcher poll interval (0 disables)       |
 
 ## REST API
 
@@ -151,10 +178,10 @@ src/
   scanner/               CIDR expansion, TCP sweep, classification
   protocols/             pjlink, wol, vnc, png, crestron, amx, screen, learner
   devices/               store, exporter, simulator, analysis orchestrator
-  control/               controlManager (routing) + validator (follow/validate)
+  control/               controlManager (routing) + validator + drift watcher
   server/                zero-dependency HTTP + REST API
   web/                   dashboard (index.html, app.js, styles.css)
-  telegram/              bot transport + api wrapper + pure menu/handler logic
+  telegram/              bot transport + api wrapper + menu/handlers + notifier
 test/                    node:test unit tests
 ```
 

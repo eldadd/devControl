@@ -71,6 +71,12 @@ export const config = {
     settleMs: envInt('VALIDATE_SETTLE_MS', 8000),
     pollIntervalMs: envInt('VALIDATE_POLL_MS', 1000),
   },
+
+  watch: {
+    // Background drift-watcher poll interval (ms). 0 disables. Only runs when
+    // push notifications are configured.
+    intervalMs: envInt('WATCH_INTERVAL_MS', 30000),
+  },
 };
 
 // Derive the primary IPv4 CIDR of this host if none was configured.

@@ -19,6 +19,11 @@ import {
   runControllerMacro,
   rebootDevice as _reboot,
 } from './controlManager.js';
+import {
+  isNotifierEnabled,
+  pushMessage,
+  formatCommandFailure,
+} from '../telegram/notifier.js';
 import * as pjlink from '../protocols/pjlink.js';
 import * as vnc from '../protocols/vnc.js';
 import * as screen from '../protocols/screen.js';
@@ -94,6 +99,17 @@ export async function powerRoom(store, on, opts = {}) {
 
   const report = await waitForConvergence(targets, expected, password);
   const converged = report.every((r) => r.ok);
+
+  // Record what we commanded so the drift watcher has a baseline, and push an
+  // immediate alert if the command didn't fully take.
+  if (store.setExpected) store.setExpected(expected);
+  if (!converged && isNotifierEnabled()) {
+    const failures = report.filter((r) => !r.ok);
+    await pushMessage(
+      formatCommandFailure(`Room power ${on ? 'ON' : 'OFF'}`, failures),
+    ).catch(() => {});
+  }
+
   return { expected, viaController, converged, report };
 }
 

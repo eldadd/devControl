@@ -11,7 +11,18 @@ export class DeviceStore {
   constructor() {
     this.devices = new Map();
     this.controllerMap = {}; // learned controller macro joins
+    this.roomExpected = null; // 'on' | 'off' | null — last commanded room state
     this._load();
+  }
+
+  // The power state the room was last commanded into. The drift watcher
+  // compares live device state against this to detect devices that fell out.
+  setExpected(state) {
+    this.roomExpected = state === 'on' || state === 'off' ? state : null;
+  }
+
+  getExpected() {
+    return this.roomExpected;
   }
 
   _load() {
