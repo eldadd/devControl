@@ -29,6 +29,10 @@ the whole flow without any hardware.
    room power is issued through the controller's learned macro when present
    (otherwise fanned out directly), then every device is polled until it
    converges to the expected state. Any device that fails to follow is flagged.
+7. **Telegram control menu** (`src/telegram/`) — an alternative control surface
+   to the web dashboard: inline-keyboard menus for room power, per-device
+   on/off/restart, PC thumbnails, and network scans, all driving the same store
+   and validation engine.
 
 ## Quick start
 
@@ -71,6 +75,43 @@ your room. Capture it once during commissioning and drop it into
 analyzer then reuses that macro and **validates the downstream devices actually
 followed** — catching a projector that stayed off or a display that never woke.
 
+## Telegram control bot
+
+An alternative to the web dashboard: control the room from Telegram with the
+same discovery/validation engine underneath.
+
+**1. Create the bot and get a token** (one-time, done in Telegram — the app
+cannot mint a token for you):
+
+1. Open Telegram and message [@BotFather](https://t.me/BotFather).
+2. Send `/newbot`, choose a display name and a username ending in `bot`.
+3. BotFather replies with an **HTTP API token** like
+   `123456789:AAExxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`.
+
+**2. Run the app with the token:**
+
+```bash
+# bot alongside the web dashboard
+TELEGRAM_BOT_TOKEN=123456789:AAE... npm start
+
+# or just the bot, no web server
+TELEGRAM_BOT_TOKEN=123456789:AAE... node src/index.js telegram
+```
+
+**3. Restrict access (strongly recommended).** By default the bot responds to
+anyone who messages it. Lock it to specific chats with
+`TELEGRAM_ALLOWED_CHAT_IDS` (comma-separated). To find your chat ID, message the
+bot once and check the logs, or use `@userinfobot`.
+
+```bash
+TELEGRAM_BOT_TOKEN=123456789:AAE... \
+TELEGRAM_ALLOWED_CHAT_IDS=11111111,22222222 \
+npm start
+```
+
+In Telegram, send `/start` (or `/menu`) to your bot to bring up the control
+menu. The token is only ever read from the environment — it is never committed.
+
 ## Configuration
 
 All settings have sensible defaults and can be overridden with environment
@@ -84,6 +125,8 @@ variables (see `src/config.js`):
 | `SIMULATE`          | on      | Add a simulated fleet when nothing real answers |
 | `VNC_THUMB_WIDTH`   | 320     | Thumbnail width (px)                           |
 | `VALIDATE_SETTLE_MS`| 8000    | How long to wait for power convergence         |
+| `TELEGRAM_BOT_TOKEN`| —       | BotFather token; enables the Telegram bot      |
+| `TELEGRAM_ALLOWED_CHAT_IDS` | — | Comma-separated chat IDs allowed to control    |
 
 ## REST API
 
@@ -111,6 +154,7 @@ src/
   control/               controlManager (routing) + validator (follow/validate)
   server/                zero-dependency HTTP + REST API
   web/                   dashboard (index.html, app.js, styles.css)
+  telegram/              bot transport + api wrapper + pure menu/handler logic
 test/                    node:test unit tests
 ```
 

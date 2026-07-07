@@ -5,9 +5,10 @@
 //   serve   - start the web dashboard (default)
 
 import { startServer } from './server/api.js';
-import { runAnalysis } from './devices/analyzer.js';
+import { runAnalysis, ensureSeeded } from './devices/analyzer.js';
 import { buildExport, writeExport } from './devices/exporter.js';
 import { store } from './devices/deviceStore.js';
+import { startTelegramBot } from './telegram/bot.js';
 import { detectCidr, config } from './config.js';
 
 const cmd = process.argv[2] || 'serve';
@@ -32,9 +33,21 @@ async function main() {
       console.log(`Wrote inventory: ${file}`);
       break;
     }
+    case 'telegram': {
+      // Run only the Telegram control bot (no web server).
+      ensureSeeded();
+      const bot = await startTelegramBot();
+      if (!bot) {
+        console.error('Set TELEGRAM_BOT_TOKEN to run the Telegram control bot.');
+        process.exit(1);
+      }
+      break;
+    }
     case 'serve':
     default: {
       startServer();
+      // Start the Telegram control bot alongside the dashboard if configured.
+      startTelegramBot().catch((e) => console.error(e.message));
       // Optional background re-scan loop.
       if (config.scan.intervalMs > 0) {
         setInterval(() => runAnalysis().catch(() => {}), config.scan.intervalMs);
